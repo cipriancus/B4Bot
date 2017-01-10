@@ -2,7 +2,6 @@ from __future__ import unicode_literals
 from logic.logic_adapter import LogicAdapter
 from conversation.statement import Statement
 import re
-import os
 import json
 import decimal
 import numpy
@@ -10,17 +9,17 @@ import numpy
 
 class MathematicalEvaluation(LogicAdapter):
     """
-    The MathematicalEvaluation logic adapter parses input to
-    determine whether the user is asking a question that requires
-    math to be done. If so, MathematicalEvaluation goes through a
-    set of steps to parse the input and extract the equation that
-    must be solved. The steps, in order, are:
+    MathematicalEvaluation cauta termeni matematii si
+    operatii si spune cu un grad de incredere daca poate
+    raspunde la intrebare si ce raspuns este
 
-    1) Normalize input: Remove punctuation and other irrelevant data
-    2) Convert words to numbers
-    3) Extract the equation
-    4) Simplify the equation
-    5) Solve the equation & return result
+    Algoritm:
+
+    1) Stergem semne de punctuatie si facem lowercase
+    2) Transformam din cuvinte in numere
+    3) Cautam o ecuaties
+    4) Simplificam ecuatia
+    5) Rezolvam cu numpy
     """
     functions = ['log', 'sqrt']
 
@@ -33,7 +32,7 @@ class MathematicalEvaluation(LogicAdapter):
 
     def get_language_data(self, language):
         """
-        Load language-specific data
+        Incarcam datele de limba din corpusul nostru
         """
         from corpus import Corpus
 
@@ -44,20 +43,12 @@ class MathematicalEvaluation(LogicAdapter):
             extension='json'
         )
 
-        try:
-            with open(math_words_data_file_path) as data:
-                return json.load(data)
-        except IOError:
-            raise self.UnrecognizedLanguageException(
-                'A math_words data file was not found for `{}` at `{}`.'.format(
-                    language, math_words_data_file_path
-                )
-            )
+        with open(math_words_data_file_path) as data:
+            return json.load(data)
 
     def can_process(self, statement):
         """
-        Determines whether it is appropriate for this
-        adapter to respond to the user input.
+        Determinam daca acest adaptor poate raspunde
         """
         confidence, response = self.process(statement)
         self.cache[statement.text] = (confidence, response)
@@ -65,41 +56,41 @@ class MathematicalEvaluation(LogicAdapter):
 
     def process(self, statement):
         """
-        Takes a statement string.
-        Returns the simplified statement string
-        with the mathematical terms "solved".
+        Simplifica statement ul
+        si vede daca gaseste termeni matematici in el,
+        pentru a putea vedea daca l poate procesa
         """
         input_text = statement.text
 
-        # Use the result cached by the process method if it exists
+        # Daca input ul exista in cache il folosim direct
         if input_text in self.cache:
             cached_result = self.cache[input_text]
             self.cache = {}
             return cached_result
 
-        # Getting the mathematical terms within the input statement
+        # Cautam termeni matematici
         expression = str(self.simplify_chunks(self.normalize(input_text)))
 
-        # Returning important information
         try:
             expression += "= " + str(
                 eval(expression, {f: getattr(numpy, f) for f in self.functions})
             )
 
-            # return a confidence of 1 if the expression could be evaluated
+            # returneaza cu incredere de 0 sau 1 dc poate evalua expresia
             return 1, Statement(expression)
         except:
             return 0, Statement(expression)
 
     def simplify_chunks(self, input_text):
         """
-        Separates the incoming text.
+        Facem split pe text
         """
         string = ''
         chunks = re.split(r"([\w\.-]+|[\(\)\*\+])", input_text)
         chunks = [chunk.strip() for chunk in chunks]
         chunks = [chunk for chunk in chunks if chunk != '']
 
+        #cautam pe bucatile facute split legat de matematica
         for chunk in chunks:
             for checker in ['is_integer', 'is_float', 'is_operator', 'is_constant', 'is_function']:
                 result = getattr(self, checker)(chunk)
@@ -110,32 +101,18 @@ class MathematicalEvaluation(LogicAdapter):
         return string
 
     def is_float(self, string):
-        """
-        If the string is a float, returns
-        the float of the string. Otherwise,
-        it returns False.
-        """
         try:
             return decimal.Decimal(string)
         except decimal.DecimalException:
             return False
 
     def is_integer(self, string):
-        """
-        If the string is an integer, returns
-        the int of the string. Otherwise,
-        it returns False.
-        """
         try:
             return int(string)
         except:
             return False
 
     def is_constant(self, string):
-        """
-        If the string is a mathematical constant, returns
-        said constant. Otherwise, it returns False.
-        """
         constants = {
             "pi": 3.141693,
             "e": 2.718281
@@ -143,20 +120,12 @@ class MathematicalEvaluation(LogicAdapter):
         return constants.get(string, False)
 
     def is_function(self, string):
-        """
-        If the string is an availbale mathematical function, returns
-        said function. Otherwise, it returns False.
-        """
         if string in self.functions:
             return string
         else:
             return False
 
     def is_operator(self, string):
-        """
-        If the string is an operator, returns
-        said operator. Otherwise, it returns false.
-        """
         if string in "+-/*^()":
             return string
         else:
@@ -164,22 +133,19 @@ class MathematicalEvaluation(LogicAdapter):
 
     def normalize(self, string):
         """
-        Normalizes input text, reducing errors
-        and improper calculations.
+        Procesam textul
         """
 
-        # If the string is empty, just return it
         if len(string) is 0:
             return string
 
-        # Setting all words to lowercase
         string = string.lower()
 
-        # Removing punctuation
+        # stergem pucte
         if not string[-1].isalnum():
             string = string[:-1]
 
-        # Removing words
+        # stergem cuvinte si facem replace
         string = self.substitute_words(string)
 
         # Returning normalized text
@@ -187,7 +153,7 @@ class MathematicalEvaluation(LogicAdapter):
 
     def substitute_words(self, string):
         """
-        Substitutes numbers for words.
+        Punem termeni matematici in loc de cuvinte
         """
         condensed_string = '_'.join(string.split())
 
@@ -239,9 +205,3 @@ class MathematicalEvaluation(LogicAdapter):
                 condensed_string[end_index] += " )"
 
         return ' '.join(condensed_string)
-
-    class UnrecognizedLanguageException(Exception):
-        """
-        Exception raised when the specified language is not known.
-        """
-        pass

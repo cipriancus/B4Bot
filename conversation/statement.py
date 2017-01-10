@@ -32,19 +32,12 @@ class Statement(object):
 
     def add_extra_data(self, key, value):
         """
-        This method allows additional data to be stored on the statement object.
+        Aceasta metoda adauga o forma de stocare suplimentara a informatiilor
 
-        Typically this data is something that pertains just to this statement.
-        For example, a value stored here might be the tagged parts of speech for
-        each word in the statement text.
+        Se pot stoca informatii destre acest statement, cum ar fi POS-ul :
 
             - key = 'pos_tags'
             - value = [('Now', 'RB'), ('for', 'IN'), ('something', 'NN'), ('different', 'JJ')]
-
-        :param key: The key to use in the dictionary of extra data.
-        :type key: str
-
-        :param value: The value to set for the specified key.
         """
         self.extra_data[key] = value
 
