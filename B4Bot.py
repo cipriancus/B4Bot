@@ -6,12 +6,9 @@ from model import utils
 
 class B4Bot(object):
 
-    def __init__(self, name, **kwargs):
+    def __init__(self, **kwargs):
         from conversation.session import SessionManager
         from logic.multi_adapter import MultiLogicAdapter
-
-        self.name = name
-        kwargs['name'] = name
 
         storage_adapter = kwargs.get('storage_adapter', 'storage.jsonfile.JsonFileStorageAdapter')
 
@@ -67,11 +64,7 @@ class B4Bot(object):
 
     def get_response(self, input_item, session_id=None):
         """
-        Return the bot's response based on the input.
-
-        :param input_item: An input value.
-        :returns: A response to the input.
-        :rtype: Statement
+        Trimitem raspunsul utilizatorului robotului pentru un input
         """
         if not session_id:
             session_id = str(self.default_session.uuid)
@@ -80,7 +73,7 @@ class B4Bot(object):
 
         statement, response, confidence = self.generate_response(input_statement, session_id)
 
-        # Learn that the user's input was a valid response to the chat bot's previous output
+        # Invatam ca input ul userului a fost raspuns valid la ultimul output
         previous_statement = self.conversation_sessions.get(
             session_id
         ).conversation.get_last_response_statement()
@@ -92,7 +85,7 @@ class B4Bot(object):
 
     def generate_response(self, input_statement, session_id=None):
         """
-        Return a response based on a given input statement.
+        Trimitem raspunsul robotului pentru un input
         """
         if not session_id:
             session = self.conversation_sessions.get_default()
@@ -100,14 +93,13 @@ class B4Bot(object):
 
         self.storage.generate_base_query(self, session_id)
 
-        # Select a response to the input statement
         confidence, response = self.logic.process(input_statement)
 
         return input_statement, response, confidence
 
     def learn_response(self, statement, previous_statement):
         """
-        Learn that the statement provided is a valid response.
+        Se invata raspunsul
         """
         from conversation.response import Response
 
@@ -116,6 +108,5 @@ class B4Bot(object):
                 Response(previous_statement.text)
             )
 
-        # Update the database after selecting a response
         self.storage.update(statement)
 

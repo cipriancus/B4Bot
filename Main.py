@@ -6,7 +6,7 @@ import json
 import time
 import socket
 
-chatbot = B4Bot('Ron Obvious')
+chatbot = B4Bot()
 
 alchemyapi = AlchemyAPI()
 
