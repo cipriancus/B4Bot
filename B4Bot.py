@@ -2,14 +2,10 @@ from __future__ import unicode_literals
 import logging
 from storage.storage_adapter import StorageAdapter
 from input.input_adapter import InputAdapter
-from output.output_adapter import OutputAdapter
 from model import utils
 
 
 class B4Bot(object):
-    """
-    A conversational dialog ChatBot.
-    """
 
     def __init__(self, name, **kwargs):
         from conversation.session import SessionManager
@@ -20,23 +16,17 @@ class B4Bot(object):
 
         storage_adapter = kwargs.get('storage_adapter', 'storage.jsonfile.JsonFileStorageAdapter')
 
-        logic_adapters = kwargs.get('logic_adapters', [
-            'logic.best_match.BestMatch'
-        ])
+        logic_adapters = kwargs.get('logic_adapters', ['logic.best_match.BestMatch'])
 
         input_adapter = kwargs.get('input_adapter', 'input.variable_input_type_adapter.VariableInputTypeAdapter')
 
-        output_adapter = kwargs.get('output_adapter', 'output.output_adapter.OutputAdapter')
-
-        # Check that each adapter is a valid subclass of it's respective parent
+        # Verificam adaptorii daca au impelentat interfetele corespunzatoare
         utils.validate_adapter_class(storage_adapter, StorageAdapter)
         utils.validate_adapter_class(input_adapter, InputAdapter)
-        utils.validate_adapter_class(output_adapter, OutputAdapter)
 
         self.logic = MultiLogicAdapter(**kwargs)
         self.storage = utils.initialize_class(storage_adapter, **kwargs)
         self.input = utils.initialize_class(input_adapter, **kwargs)
-        self.output = utils.initialize_class(output_adapter, **kwargs)
 
         filters = kwargs.get('filters', tuple())
         self.filters = (utils.import_module(F)() for F in filters)
@@ -54,7 +44,6 @@ class B4Bot(object):
         self.storage.set_chatbot(self)
         self.logic.set_chatbot(self)
         self.input.set_chatbot(self)
-        self.output.set_chatbot(self)
 
         # Use specified trainer or fall back to the default
         trainer = kwargs.get('trainer', 'trainer.trainers.Trainer')
@@ -105,8 +94,7 @@ class B4Bot(object):
 
         self.conversation_sessions.update(session_id, (statement, response, ))
 
-        # Process the response output with the output adapter
-        return self.output.process_response(response, confidence, session_id)
+        return response
 
     def generate_response(self, input_statement, session_id=None):
         """

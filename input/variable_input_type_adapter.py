@@ -4,6 +4,9 @@ from conversation.statement import Statement
 
 
 class VariableInputTypeAdapter(InputAdapter):
+    '''
+    Face conversia din diferite tipuri de input la un obiest de tipul Statement
+    '''
 
     JSON = 'json'
     TEXT = 'text'
@@ -27,7 +30,7 @@ class VariableInputTypeAdapter(InputAdapter):
         input_type = type(statement)
 
         raise self.UnrecognizedInputFormatException(
-            'The type {} is not recognized as a valid input type.'.format(
+            'Nu se cunoaste tipul, tipurile admise sunt Text, Obiect- Statement sau JSON.'.format(
                 input_type
             )
         )
@@ -35,15 +38,12 @@ class VariableInputTypeAdapter(InputAdapter):
     def process_input(self, statement):
         input_type = self.detect_type(statement)
 
-        # Return the statement object without modification
         if input_type == self.OBJECT:
             return statement
 
-        # Convert the input string into a statement object
         if input_type == self.TEXT:
             return Statement(statement)
 
-        # Convert input dictionary into a statement object
         if input_type == self.JSON:
             input_json = dict(statement)
             text = input_json["text"]
@@ -52,12 +52,7 @@ class VariableInputTypeAdapter(InputAdapter):
             return Statement(text, **input_json)
 
     class UnrecognizedInputFormatException(Exception):
-        """
-        Exception raised when an input format is specified that is
-        not in the VariableInputTypeAdapter.VALID_FORMATS variable.
-        """
-
-        def __init__(self, value='The input format was not recognized.'):
+        def __init__(self, value='Formatul de input nu este cunoscut'):
             self.value = value
 
         def __str__(self):

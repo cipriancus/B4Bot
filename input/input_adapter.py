@@ -4,29 +4,25 @@ from adapters.adapters import Adapter
 
 class InputAdapter(Adapter):
     """
-    This is an abstract class that represents the
-    interface that all input adapters should implement.
+    Clasa abstracta pentru input adapter
     """
 
     def process_input(self, *args, **kwargs):
         """
-        Returns a statement object based on the input source.
+        Returneaza un statement bazandu se pe sursa de inout
         """
         raise self.AdapterMethodNotImplementedError()
 
     def process_input_statement(self, *args, **kwargs):
         """
-        Return an existing statement object (if one exists).
+        returneaza un statement deja existent
         """
         input_statement = self.process_input(*args, **kwargs)
-        self.logger.info('Recieved input statement: {}'.format(input_statement.text))
-
+        
         existing_statement = self.chatbot.storage.find(input_statement.text)
 
         if existing_statement:
-            self.logger.info('"{}" is a known statement'.format(input_statement.text))
+            #exista statement ul
             input_statement = existing_statement
-        else:
-            self.logger.info('"{}" is not a known statement'.format(input_statement.text))
 
         return input_statement

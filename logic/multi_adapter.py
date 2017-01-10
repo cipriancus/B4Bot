@@ -37,21 +37,10 @@ class MultiLogicAdapter(LogicAdapter):
                 confidence, output = adapter.process(statement)
                 results.append((confidence, output, ))
 
-                self.logger.info(
-                    '{} selected "{}" as a response with a confidence of {}'.format(
-                        str(adapter.__class__), output.text, confidence
-                    )
-                )
-
                 if confidence > max_confidence:
                     result = output
                     max_confidence = confidence
-            else:
-                self.logger.info(
-                    'Not processing the statement using {}'.format(
-                        str(adapter.__class__)
-                    )
-                )
+
 
         # If multiple adapters agree on the same statement,
         # then that statement is more likely to be the correct response

@@ -6,18 +6,12 @@ from conversation.statement import Statement
 
 class JsonFileStorageAdapter(StorageAdapter):
     """
-    This adapter allows ChatterBot to store conversation
-    data in a file in JSON format.
+    Permite stocarea conversatiilor cu userii in format JSON
 
-    :keyword database: The path to the json file you wish to store data in.
+    :keyword database: Path ul catre json ul in care se va stoca
     :type database: str
 
-    :keyword silence_performance_warning: If set to True, the :code:`UnsuitableForProductionWarning`
-                                          will not be displayed.
-    :type silence_performance_warning: bool
-
-    :keyword read_only: If set to True, ChatterBot will not save information to the database.
-                        False by default.
+    :keyword read_only: True si nu se vor salva in BD
     :type read_only: bool
     """
 
@@ -25,19 +19,12 @@ class JsonFileStorageAdapter(StorageAdapter):
         super(JsonFileStorageAdapter, self).__init__(**kwargs)
         from jsondb import Database
 
-        if not kwargs.get('silence_performance_warning', False):
-            warnings.warn(
-                'The JsonFileStorageAdapter is not recommended for production environments.',
-                self.UnsuitableForProductionWarning
-            )
-
         database_path = self.kwargs.get('database', 'database.db')
         self.database = Database(database_path)
 
         self.adapter_supports_queries = False
 
     def _keys(self):
-        # The value has to be cast as a list for Python 3 compatibility
         return list(self.database[0].keys())
 
     def count(self):
@@ -54,11 +41,6 @@ class JsonFileStorageAdapter(StorageAdapter):
         return self.json_to_object(values)
 
     def remove(self, statement_text):
-        """
-        Removes the statement that matches the input text.
-        Removes any responses from statements if the response text matches the
-        input text.
-        """
         for statement in self.filter(in_response_to__contains=statement_text):
             statement.remove_response(statement_text)
             self.update(statement)
@@ -67,8 +49,8 @@ class JsonFileStorageAdapter(StorageAdapter):
 
     def deserialize_responses(self, response_list):
         """
-        Takes the list of response items and returns
-        the list converted to Response objects.
+        Face conversia de la o lista de raspunsuri
+        la o lista de obiecte Response
         """
         proxy_statement = Statement('')
 
@@ -84,19 +66,15 @@ class JsonFileStorageAdapter(StorageAdapter):
         return proxy_statement.in_response_to
 
     def json_to_object(self, statement_data):
-        """
-        Converts a dictionary-like object to a Statement object.
-        """
-
-        # Don't modify the referenced object
+        # copiem pt a nu modifica obiectul original
         statement_data = statement_data.copy()
 
-        # Build the objects for the response list
+        # Construim obiectul pentru lista de raspunsuri
         statement_data['in_response_to'] = self.deserialize_responses(
             statement_data['in_response_to']
         )
 
-        # Remove the text attribute from the values
+        # Stergem atrb text
         text = statement_data.pop('text')
 
         return Statement(text, **statement_data)
@@ -126,16 +104,12 @@ class JsonFileStorageAdapter(StorageAdapter):
         return True
 
     def filter(self, **kwargs):
-        """
-        Returns a list of statements in the database
-        that match the parameters specified.
-        """
         results = []
 
         for key in self._keys():
             values = self.database.data(key=key)
 
-            # Add the text attribute to the values
+            # Adaugam atrb text
             values['text'] = key
 
             if self._all_kwargs_match_values(kwargs, values):
@@ -145,18 +119,14 @@ class JsonFileStorageAdapter(StorageAdapter):
         return results
 
     def update(self, statement, **kwargs):
-        """
-        Update a statement in the database.
-        """
-        # Do not alter the database unless writing is enabled
+        # Nu se modifica bd decat dc e permis
         if not self.read_only:
             data = statement.serialize()
 
-            # Remove the text key from the data
             del data['text']
             self.database.data(key=statement.text, value=data)
 
-            # Make sure that an entry for each response exists
+            # Se verifica dc exista o intrare pt fiecare raspuns
             for response_statement in statement.in_response_to:
                 response = self.find(response_statement.text)
                 if not response:
@@ -175,16 +145,4 @@ class JsonFileStorageAdapter(StorageAdapter):
         return self.find(statement)
 
     def drop(self):
-        """
-        Remove the json file database completely.
-        """
         self.database.drop()
-
-    class UnsuitableForProductionWarning(Warning):
-        """
-        The json file storage adapter will display an :code:`UnsuitableForProductionWarning`
-        when it is initialized because it is not intended for use in large scale production
-        applications. You can silence this warning by setting
-        :code:`silence_performance_warning=True` when initializing the adapter.
-        """
-        pass

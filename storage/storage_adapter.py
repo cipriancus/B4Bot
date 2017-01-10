@@ -3,14 +3,11 @@ from adapters.adapters import Adapter
 
 class StorageAdapter(Adapter):
     """
-    This is an abstract class that represents the interface
-    that all storage adapters should implement.
+    Clasa abstracta pentru Storage Adapter
     """
 
     def __init__(self, base_query=None, *args, **kwargs):
-        """
-        Initialize common attributes shared by all storage adapters.
-        """
+
         super(StorageAdapter, self).__init__(**kwargs)
 
         self.kwargs = kwargs
@@ -18,72 +15,65 @@ class StorageAdapter(Adapter):
         self.adapter_supports_queries = True
         self.base_query = None
 
-    def generate_base_query(self, chatterbot, session_id):
+    def generate_base_query(self, bot, session_id):
         """
-        Create a base query for the storage adapter.
+        Create a query
         """
         if self.adapter_supports_queries:
-            for filter_instance in chatterbot.filters:
-                self.base_query = filter_instance.filter_selection(chatterbot, session_id)
+            for filter_instance in bot.filters:
+                self.base_query = filter_instance.filter_selection(bot, session_id)
 
     def count(self):
         """
-        Return the number of entries in the database.
+        Return nr de intrari din BD
         """
         raise self.AdapterMethodNotImplementedError()
 
     def find(self, statement_text):
         """
-        Returns a object from the database if it exists
+        Return un obiect din DB, dc exista
         """
         raise self.AdapterMethodNotImplementedError()
 
     def remove(self, statement_text):
         """
-        Removes the statement that matches the input text.
-        Removes any responses from statements where the response text matches
-        the input text.
+        Sterge un raspuns ce face match pe input
         """
         raise self.AdapterMethodNotImplementedError()
 
     def filter(self, **kwargs):
         """
-        Returns a list of objects from the database.
-        The kwargs parameter can contain any number
-        of attributes. Only objects which contain
-        all listed attributes and in which all values
-        match for all listed attributes will be returned.
+        Return o lista de obiecte din BD
+        kwargs contine un nr de atribute.
+        Doar obiectele ce au toate atrib sunt returnate
         """
         raise self.AdapterMethodNotImplementedError()
 
     def update(self, statement):
         """
-        Modifies an entry in the database.
-        Creates an entry if one does not exist.
+        Modifica entitatea in BD
         """
         raise self.AdapterMethodNotImplementedError()
 
     def get_random(self):
         """
-        Returns a random statement from the database
+        Returns random statement from BD
         """
         raise self.AdapterMethodNotImplementedError()
 
     def drop(self):
         """
-        Drop the database attached to a given adapter.
+        Sterge BD a unui adaptor
         """
         raise self.AdapterMethodNotImplementedError()
 
     def get_response_statements(self):
         """
-        Return only statements that are in response to another statement.
-        A statement must exist which lists the closest matching statement in the
-        in_response_to field. Otherwise, the logic adapter may find a closest
-        matching statement that does not have a known response.
+        Intoarcere numai declaratii.
+        O declaratie trebuie sa existe care sa fie cel mai apropiat match in campul
+        In_response_to. In caz contrar, adaptorul logic poate gasi cel mai apropiata
+         declaratie care sa nu aiba un raspuns cunoscut.
 
-        This method may be overridden by a child class to provide more a
-        efficient method to get these results.
         """
         statement_list = self.filter()
 
@@ -103,7 +93,7 @@ class StorageAdapter(Adapter):
 
     class EmptyDatabaseException(Exception):
 
-        def __init__(self, value="The database currently contains no entries. At least one entry is expected. You may need to train your chat bot to populate your database."):
+        def __init__(self, value="Baza de date este goala"):
             self.value = value
 
         def __str__(self):
