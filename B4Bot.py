@@ -50,16 +50,6 @@ class B4Bot(object):
         self.logic.set_chatbot(self)
         self.input.set_chatbot(self)
 
-
-
-        # Use specified trainer or fall back to the default
-        trainer = kwargs.get('trainer', 'trainer.trainers.Trainer')
-        TrainerClass = utils.import_module(trainer)
-        self.trainer = TrainerClass(self.storage, **kwargs)
-        self.training_data = kwargs.get('training_data')
-
-
-
         self.conversation_sessions = SessionManager()
         self.default_session = self.conversation_sessions.new()
 
@@ -129,44 +119,3 @@ class B4Bot(object):
         # Update the database after selecting a response
         self.storage.update(statement)
 
-    def set_trainer(self, training_class, **kwargs):
-        """
-        Set the module used to train the chatbot.
-
-        :param training_class: The training class to use for the chat bot.
-        :type training_class: chatterbot.trainers.Trainer
-
-        :param \**kwargs: Any parameters that should be passed to the training class.
-        """
-        self.trainer = training_class(self.storage, **kwargs)
-
-    @property
-    def train(self):
-        """
-        Proxy method to the chat bot's trainer class.
-        """
-        return self.trainer.train
-
-    @classmethod
-    def from_config(cls, config_file_path):
-        """
-        Create a new ChatBot instance from a JSON config file.
-        """
-        import json
-        with open(config_file_path, 'r') as config_file:
-            data = json.load(config_file)
-
-        name = data.pop('name')
-
-        return B4Bot(name, **data)
-
-    class InvalidAdapterException(Exception):
-        """
-        An exception to be raised when an adapter of an unexpected class type is recieved.
-        """
-
-        def __init__(self, value='Recieved an unexpected adapter setting.'):
-            self.value = value
-
-        def __str__(self):
-            return repr(self.value)
