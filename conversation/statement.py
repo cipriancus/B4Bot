@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 from .response import Response
 
 
 class Statement(object):
     """
-    A statement represents a single spoken entity, sentence or
-    phrase that someone can say.
+    Un statement este un text pe care cineva il poate spune,
+    adica un input text
     """
 
     def __init__(self, text, **kwargs):
@@ -51,15 +50,13 @@ class Statement(object):
 
     def add_response(self, response):
         """
-        Add the response to the list of statements that this statement is in response to.
-        If the response is already in the list, increment the occurrence count of that response.
-
-        :param response: The response to add.
-        :type response: chatterbot.conversation.response.Response
+        Adauga un raspuns in lista de raspunsuri a statement-ului,
+        daca exista se va creste contorul lui
         """
         if not isinstance(response, Response):
             raise Statement.InvalidTypeException(
-                'A {} was recieved when a {} instance was expected'.format(
+                'Un obiect de tipul {} a fost primit dar '
+                'se astepta un obiect de tipul  {} '.format(
                     type(response),
                     type(Response(''))
                 )
@@ -76,11 +73,7 @@ class Statement(object):
 
     def remove_response(self, response_text):
         """
-        Removes a response from the statement's response list based
-        on the value of the response text.
-
-        :param response_text: The text of the response to be removed.
-        :type response_text: str
+        Se sterge un raspuns din lista de raspunsuri a statement ului
         """
         for response in self.in_response_to:
             if response_text == response.text:
@@ -90,14 +83,9 @@ class Statement(object):
 
     def get_response_count(self, statement):
         """
-        Find the number of times that the statement has been used
-        as a response to the current statement.
-
-        :param statement: The statement object to get the count for.
-        :type statement: chatterbot.conversation.statement.Statement
-
-        :returns: Return the number of times the statement has been used as a response.
-        :rtype: int
+        Cauta numarul de ocazii in care statement-ul a fost folosit
+        ca raspuns la input-ul ( statement-ul curent ), adica de cate
+        ori s-a folosit acest raspuns pentru o intrebaree
         """
         for response in self.in_response_to:
             if statement.text == response.text:
@@ -107,8 +95,8 @@ class Statement(object):
 
     def serialize(self):
         """
-        :returns: A dictionary representation of the statement object.
-        :rtype: dict
+        Creeaza un dictionar din obiect pentru a-l putea
+        serializa
         """
         data = {}
 
@@ -123,7 +111,7 @@ class Statement(object):
 
     class InvalidTypeException(Exception):
 
-        def __init__(self, value='Recieved an unexpected value type.'):
+        def __init__(self, value='Tip primit invalid'):
             self.value = value
 
         def __str__(self):

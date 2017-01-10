@@ -1,6 +1,6 @@
 class Response(object):
     """
-    A response represents an entity which response to a statement.
+    Un raspuns la un statement
     """
 
     def __init__(self, text, **kwargs):
@@ -11,7 +11,7 @@ class Response(object):
         return self.text
 
     def __repr__(self):
-        return '<Response text:%s>' % (self.text)
+        return '<Raspuns:%s>' % (self.text)
 
     def __hash__(self):
         return hash(self.text)

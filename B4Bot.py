@@ -1,5 +1,4 @@
 from __future__ import unicode_literals
-import logging
 from storage.storage_adapter import StorageAdapter
 from input.input_adapter import InputAdapter
 from model import utils
@@ -16,7 +15,8 @@ class B4Bot(object):
 
         storage_adapter = kwargs.get('storage_adapter', 'storage.jsonfile.JsonFileStorageAdapter')
 
-        logic_adapters = kwargs.get('logic_adapters', ['logic.best_match.BestMatch'])
+        logic_adapters = kwargs.get('logic_adapters', ['logic.best_match.BestMatch',
+                                    'logic.mathematical_evaluation.MathematicalEvaluation','logic.time_adapter.TimeLogicAdapter'])
 
         input_adapter = kwargs.get('input_adapter', 'input.variable_input_type_adapter.VariableInputTypeAdapter')
 
@@ -24,26 +24,31 @@ class B4Bot(object):
         utils.validate_adapter_class(storage_adapter, StorageAdapter)
         utils.validate_adapter_class(input_adapter, InputAdapter)
 
+        #da raspunsul efectiv, folosind mai multe adaptoare
         self.logic = MultiLogicAdapter(**kwargs)
+
         self.storage = utils.initialize_class(storage_adapter, **kwargs)
+
+
         self.input = utils.initialize_class(input_adapter, **kwargs)
 
         filters = kwargs.get('filters', tuple())
         self.filters = (utils.import_module(F)() for F in filters)
 
-        # Add required system logic adapter
-        self.logic.system_adapters.append(
-            utils.initialize_class('logic.no_knowledge_adapter.NoKnowledgeAdapter', **kwargs)
-        )
+        # Setam un adaptor defaul in MultiLogicAdapter
+        self.logic.system_adapters.append(utils.initialize_class('logic.no_knowledge_adapter.NoKnowledgeAdapter', **kwargs))
 
+        #adaugam adaptoarele pentru raspunsurile noastre
+        #in MultiLogicAdapter
         for adapter in logic_adapters:
             self.logic.add_adapter(adapter, **kwargs)
 
-        # Add the chatbot instance to each adapter to share information such as
-        # the name, the current conversation, or other adapters
+        # le dam adaptoarelor instanta de robot
         self.storage.set_chatbot(self)
         self.logic.set_chatbot(self)
         self.input.set_chatbot(self)
+
+
 
         # Use specified trainer or fall back to the default
         trainer = kwargs.get('trainer', 'trainer.trainers.Trainer')
@@ -51,21 +56,18 @@ class B4Bot(object):
         self.trainer = TrainerClass(self.storage, **kwargs)
         self.training_data = kwargs.get('training_data')
 
+
+
         self.conversation_sessions = SessionManager()
         self.default_session = self.conversation_sessions.new()
-
-        self.logger = kwargs.get('logger', logging.getLogger(__name__))
 
         if kwargs.get('initialize', True):
             self.initialize()
 
     def initialize(self):
-        """
-        Do any work that needs to be done before the responses can be returned.
-        """
         from model.utils import nltk_download_corpus
 
-        # Download required NLTK corpora if they have not already been downloaded
+        # downloadam ce ne trebuie pentru nltk
         nltk_download_corpus('stopwords')
         nltk_download_corpus('wordnet')
         nltk_download_corpus('punkt')
@@ -121,10 +123,6 @@ class B4Bot(object):
             statement.add_response(
                 Response(previous_statement.text)
             )
-            self.logger.info('Adding "{}" as a response to "{}"'.format(
-                statement.text,
-                previous_statement.text
-            ))
 
         # Update the database after selecting a response
         self.storage.update(statement)
