@@ -69,7 +69,7 @@ def synset_distance(statement, other_statement):
     """
     from nltk.corpus import wordnet
     from nltk import word_tokenize
-    from chatterbot import utils
+    from model import utils
     import itertools
 
     tokens1 = word_tokenize(statement.text.lower())

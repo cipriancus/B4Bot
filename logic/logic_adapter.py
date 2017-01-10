@@ -8,7 +8,7 @@ class LogicAdapter(Adapter):
     def __init__(self, **kwargs):
         super(LogicAdapter, self).__init__(**kwargs)
         from model.comparisons import levenshtein_distance
-        from model.response_selection import get_first_response
+        from model.response_selection import get_random_response
 
 
         if 'statement_comparison_function' in kwargs:
@@ -28,7 +28,7 @@ class LogicAdapter(Adapter):
 
         self.select_response = kwargs.get(
             'response_selection_method',
-            get_first_response
+            get_random_response
         )
 
     def can_process(self, statement):
