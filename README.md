@@ -21,4 +21,9 @@ Sunt necesare si alte componente ce se vor instala cu pip cand vor aparea ca ero
 
 #Modul 2
 
-In lucru
+Se iau datele de la modulul 2 : https://github.com/cipriancus/Modul2/tree/master
+
+Se pune arhiva undeva. Modulul compileaza numai cu python 2.7 asa ca mare grija cu ce il rulati.
+Sigur vor aparea erori, ca nu gaseste ceva, se vor instala cu pip, ca nu e greu.
+Se porneste cu consola si se deschide cu python 2.7 finalserv.py
+Interogarile pentru server sunt in database_client.py din modulul 1
