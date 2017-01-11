@@ -11,7 +11,7 @@ class LowConfidenceAdapter(BestMatch):
     def __init__(self, **kwargs):
         super(LowConfidenceAdapter, self).__init__(**kwargs)
 
-        self.confidence_threshold = kwargs.get('threshold', 0.65)
+        self.confidence_threshold = kwargs.get('threshold', 0.3)
         self.default_response = kwargs.get(
             'default_response',
             "I'm sorry, I do not understand."
