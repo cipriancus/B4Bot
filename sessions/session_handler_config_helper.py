@@ -1,4 +1,4 @@
-from config_helper import ConfigHelper
+from sessions.config_helper import ConfigHelper
 import os
 
 

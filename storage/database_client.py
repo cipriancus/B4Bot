@@ -1,6 +1,7 @@
 import socket
 from conversation.statement import Statement
 
+
 class DatabaseClient():
     '''
     Interogari la BD
@@ -9,19 +10,19 @@ class DatabaseClient():
     '''
 
     def __init__(self):
-        self.s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.host=host = socket.gethostname()
+        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.host = host = socket.gethostname()
         self.port = 8888
 
-    def get_db_responce(self,input_statement):
-        self.write_json(input_statement,'',dict(),dict())
+    def get_db_responce(self, input_statement):
+        self.write_json(input_statement, '', dict(), dict())
 
         return Statement(self.get_answer(self.send()))
 
     def send(self):
         self.s.connect((self.host, self.port))
 
-        f = open('client_tosend.json','rb')
+        f = open('client_tosend.json', 'rb')
 
         l = f.read(1024)
 
@@ -33,9 +34,9 @@ class DatabaseClient():
         buffer = ''
         l = self.s.recv(1024)
 
-        buffer+=l.decode('utf-8')
+        buffer += l.decode('utf-8')
 
-        while (len(l)==1024):
+        while (len(l) == 1024):
             l = self.s.recv(1024)
             buffer += l.decode('utf-8')
 
@@ -44,11 +45,16 @@ class DatabaseClient():
 
         return buffer
 
-    def get_answer(self,db_answer):
-        return 'a'
-        #return db_answer['answer']
+    def get_answer(self, db_answer):
+        position_of_answer=db_answer.find("answer",0,len(db_answer))
+        position_of_answer=position_of_answer+len('answer')+6#sarim " si : "
 
-    def write_json(self,question, subjects, dict_prop, dict_answer):
+        answer= db_answer[position_of_answer:]
+        position_of_prop=answer.find('"prop":',0,len(answer))
+        answer=answer[:position_of_prop]
+        return answer
+
+    def write_json(self, question, subjects, dict_prop, dict_answer):
         nr_subj = len(subjects)
         f = open('client_tosend.json', 'w')
         f.write("{\n")
@@ -57,7 +63,7 @@ class DatabaseClient():
         f.write('"prop": [ ')
         i = 0
 
-        if(nr_subj!=0):
+        if (nr_subj != 0):
             for index in subjects:
                 i = i + 1
                 f.write("\n { \n")

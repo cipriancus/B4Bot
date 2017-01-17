@@ -12,11 +12,14 @@ class B4Bot(object):
         storage_adapter = kwargs.get('storage_adapter', 'storage.jsonfile.JsonFileStorageAdapter')
 
         logic_adapters = kwargs.get('logic_adapters',
-                                    ['logic.database_match.DatabaseMatch', 'logic.best_match.BestMatch',
-                                     'logic.mathematical_evaluation.MathematicalEvaluation',
-                                     'logic.time_adapter.TimeLogicAdapter',
-                                     'logic.low_confidence.LowConfidenceAdapter'
-                                     ])
+                                    [
+                                        'logic.best_match.BestMatch',
+                                        'logic.mathematical_evaluation.MathematicalEvaluation',
+                                        'logic.time_adapter.TimeLogicAdapter',
+                                        'logic.low_confidence.LowConfidenceAdapter',
+                                        'logic.interesting_adapter.InterestingLogicAdapter',
+                                        'logic.joke_adapter.JokeLogicAdapter',
+                                    ])
 
         input_adapter = kwargs.get('input_adapter', 'input.variable_input_type_adapter.VariableInputTypeAdapter')
 

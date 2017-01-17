@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Search
-from session_handler_config_helper import SessionHandlerConfigHelper
+from sessions.session_handler_config_helper import SessionHandlerConfigHelper
 
 
 class SessionHandler(object):
