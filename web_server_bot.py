@@ -34,4 +34,4 @@ def get_response():
     return jsonSend
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='46.32.233.88')

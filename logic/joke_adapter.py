@@ -14,9 +14,8 @@ class JokeLogicAdapter(LogicAdapter):
 
         self.positive = [
             'tell me a joke',
-            'can you please tell me a joke',
-            'i need a joke',
-            'tell me something funny'
+            'a joke',
+            'something funny'
         ]
 
         self.negative = [
@@ -61,6 +60,9 @@ class JokeLogicAdapter(LogicAdapter):
 
         joke_features = self.joke_question_features(statement.text.lower())
         confidence = abs(self.classifier.classify(joke_features))
+
+        if confidence > 0.5:
+            confidence = 0.6
 
         database = DatabaseClient()
 

@@ -15,7 +15,10 @@ class EntityLogicAdapter(LogicAdapter):
         from nltk import NaiveBayesClassifier
 
         self.positive = [
-            'what do you know about'
+            'what do you know about',
+            'what is',
+            'where is',
+            'something about'
         ]
 
         self.negative = [
@@ -58,12 +61,15 @@ class EntityLogicAdapter(LogicAdapter):
         response=Statement('')
 
         if len(list_of_entities)==0:
-            return 0,Statement('$$$')
+            return 0.5,Statement('Sorry, I do not have any information about that')
 
         for iterator in list_of_entities:
             database = DatabaseClient()
             response_db=str()
             response_db=database.get_db_responce('something about: '+iterator)
             response.text=response.text+"\n\n"+response_db.text
+
+        if len(response.text) <10:
+            return 1,Statement("Sorry but I do not know anything yet")
 
         return 1, response

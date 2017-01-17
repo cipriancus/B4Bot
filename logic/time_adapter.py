@@ -55,10 +55,18 @@ class TimeLogicAdapter(LogicAdapter):
     def process(self, statement):
         from conversation.statement import Statement
 
-        now = datetime.now()
+        if "time" in statement.text:
 
-        time_features = self.time_question_features(statement.text.lower())
-        confidence = abs(self.classifier.classify(time_features))
-        response = Statement('The current time is ' + now.strftime('%I:%M %p'))
+            now = datetime.now()
 
-        return confidence, response
+            time_features = self.time_question_features(statement.text.lower())
+            confidence = abs(self.classifier.classify(time_features))
+
+            if self.classifier.classify(time_features) > 0.5:
+                confidence = 0.6
+
+            response = Statement('The current time is ' + now.strftime('%I:%M %p'))
+
+            return confidence, response
+        else:
+            return 0,Statement("Sorry, I don't quite catch that")

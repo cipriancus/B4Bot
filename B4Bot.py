@@ -16,10 +16,10 @@ class B4Bot(object):
                                         'logic.best_match.BestMatch',
                                         'logic.mathematical_evaluation.MathematicalEvaluation',
                                         'logic.time_adapter.TimeLogicAdapter',
+                                        'logic.joke_adapter.JokeLogicAdapter',
                                         'logic.low_confidence.LowConfidenceAdapter',
                                         'logic.entity_adapter.EntityLogicAdapter',
-                                        'logic.interesting_adapter.InterestingLogicAdapter',
-                                        'logic.joke_adapter.JokeLogicAdapter',
+                                        'logic.interesting_adapter.InterestingLogicAdapter'
                                     ])
 
         input_adapter = kwargs.get('input_adapter', 'input.variable_input_type_adapter.VariableInputTypeAdapter')
@@ -77,7 +77,6 @@ class B4Bot(object):
         nltk_download_corpus('punkt')
         nltk_download_corpus('vader_lexicon')
         nltk_download_corpus('vader_lexicon')
-
 
     def get_response(self, input_item, session_id=None):
         """

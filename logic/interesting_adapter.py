@@ -74,4 +74,7 @@ class InterestingLogicAdapter(LogicAdapter):
             response = database.get_db_responce('MATHS FACT')
             response.text = 'Math Fact : ' + response.text
 
+        if confidence > 0.5:
+            confidence = 0.6
+
         return confidence, response
