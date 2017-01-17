@@ -15,7 +15,8 @@ class JokeLogicAdapter(LogicAdapter):
         self.positive = [
             'tell me a joke',
             'can you please tell me a joke',
-            'i need a joke'
+            'i need a joke',
+            'tell me something funny'
         ]
 
         self.negative = [
@@ -26,7 +27,8 @@ class JokeLogicAdapter(LogicAdapter):
             'how are you',
             'hello',
             'do you have a question',
-            'stop joking'
+            'stop joking',
+            'make fun of'
         ]
 
         labeled_data = (
@@ -62,7 +64,7 @@ class JokeLogicAdapter(LogicAdapter):
 
         database = DatabaseClient()
 
-        if random.randint(0,10) %2==0:
+        if random.randint(0, 10) % 2 == 0:
             response = database.get_db_responce('TELL ME A JOKE')
         else:
             response = database.get_db_responce('YO MAMA')

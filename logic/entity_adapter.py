@@ -19,7 +19,8 @@ class EntityLogicAdapter(LogicAdapter):
         ]
 
         self.negative = [
-            ''
+            'i am bored',
+            'knowledge'
         ]
 
         labeled_data = (
@@ -48,12 +49,21 @@ class EntityLogicAdapter(LogicAdapter):
     def process(self, statement):
         from conversation.statement import Statement
         from storage.database_client import DatabaseClient
+        from model.utils import get_entity
 
         entity_features = self.entity_question_features(statement.text.lower())
         confidence = abs(self.classifier.classify(entity_features))
 
-        database = DatabaseClient()
+        list_of_entities=get_entity(statement.text)
+        response=Statement('')
 
+        if len(list_of_entities)==0:
+            return 0,Statement('$$$')
 
+        for iterator in list_of_entities:
+            database = DatabaseClient()
+            response_db=str()
+            response_db=database.get_db_responce('something about: '+iterator)
+            response.text=response.text+"\n\n"+response_db.text
 
-        return confidence, response
+        return 1, response

@@ -19,51 +19,19 @@ def get_response():
     statement = request.json['statement']
     responseToStatement = chatbot.get_response(statement)
 
-    joy = np.zeros(2)
-    anger = np.zeros(2)
-    sadness = np.zeros(2)
-    disgust = np.zeros(2)
-    fear = np.zeros(2)
-
     response = alchemyapi.emotion('text', statement)
     if response['status'] == 'OK':
         emotions = response['docEmotions']
-        emotions[0]="joy"
-        emotions[1]="anger"
-        emotions[2]="sadness"
-        emotions[3]="disgust"
-        emotions[4]="fear"
-        index = np.argmax([np.sum(joy), np.sum(anger), np.sum(sadness), np.sum(disgust), np.sum(fear)])
+        maxim=0
+        emotie=''
+        for iterator in emotions.keys():
+            if float(emotions[iterator])>maxim:
+                maxim=float(emotions[iterator])
+                emotie=iterator
 
-    responseTXT=responseToStatement.text
-    jsonSend=jsonify({'response': responseTXT, 'emotion': emotions[index]})
+    jsonSend=jsonify({'response': responseToStatement.text, 'emotion': emotie})
 
     return jsonSend
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-def getEmotion(text):
-    joy = np.zeros(2)
-    anger = np.zeros(2)
-    sadness = np.zeros(2)
-    disgust = np.zeros(2)
-    fear = np.zeros(2)
-
-    pos_count = 0;
-    response = alchemyapi.emotion('text', text)
-    if response['status'] == 'OK':
-        emotions = response['docEmotions']
-        joy[pos_count] = emotions["joy"]
-        anger[pos_count] = emotions["anger"]
-        sadness[pos_count] = emotions["sadness"]
-        disgust[pos_count] = emotions["disgust"]
-        fear[pos_count] = emotions["fear"]
-        pos_count = (pos_count + 1) % 2
-        index = np.argmax([np.sum(joy), np.sum(anger), np.sum(sadness), np.sum(disgust), np.sum(fear)])
-        return index
-    return None
-
-
-
-

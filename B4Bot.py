@@ -17,6 +17,7 @@ class B4Bot(object):
                                         'logic.mathematical_evaluation.MathematicalEvaluation',
                                         'logic.time_adapter.TimeLogicAdapter',
                                         'logic.low_confidence.LowConfidenceAdapter',
+                                        'logic.entity_adapter.EntityLogicAdapter',
                                         'logic.interesting_adapter.InterestingLogicAdapter',
                                         'logic.joke_adapter.JokeLogicAdapter',
                                     ])
@@ -75,6 +76,8 @@ class B4Bot(object):
         nltk_download_corpus('wordnet')
         nltk_download_corpus('punkt')
         nltk_download_corpus('vader_lexicon')
+        nltk_download_corpus('vader_lexicon')
+
 
     def get_response(self, input_item, session_id=None):
         """

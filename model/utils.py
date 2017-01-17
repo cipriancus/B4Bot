@@ -11,6 +11,7 @@ def clean_whitespace(text):
 
     return text
 
+
 def clean(text):
     import unicodedata
 
@@ -102,7 +103,7 @@ def nltk_download_corpus(corpus_name):
     try:
         find(zip_file)
     except LookupError:
-        download(corpus_name,quiet=True)
+        download(corpus_name, quiet=True)
         downloaded = True
 
     return downloaded
@@ -121,3 +122,23 @@ def remove_stopwords(tokens, language):
     return tokens
 
 
+def get_entity(text):
+    from nltk import ne_chunk, pos_tag, word_tokenize
+    from nltk.tree import Tree
+    chunked = ne_chunk(pos_tag(word_tokenize(text)))
+    prev = None
+    continuous_chunk = []
+    current_chunk = []
+
+    for i in chunked:
+        if type(i) == Tree:
+            current_chunk.append(" ".join([token for token, pos in i.leaves()]))
+        elif current_chunk:
+            named_entity = " ".join(current_chunk)
+            if named_entity not in continuous_chunk:
+                continuous_chunk.append(named_entity)
+                current_chunk = []
+            else:
+                continue
+
+    return continuous_chunk
