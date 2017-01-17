@@ -1,18 +1,11 @@
 {
-  "question": "What color does apple have, what are them, what about watermelon?",
+  "question": "Hi",
   "prop": [
     {
-      "Subject": "apple",
-      "color": ["red"],
+      "Subject": "",
+      "color": [""],
       "subclass of": [],
       "taste": []
-    },
-     {
-      "Subject": "watermelon",
-      "color": [],
-      "subclass of": [],
-      "taxon name": []
     }
-
   ]
 }

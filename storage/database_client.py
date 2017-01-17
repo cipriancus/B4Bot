@@ -1,35 +1,84 @@
 import socket
+from conversation.statement import Statement
 
+class DatabaseClient():
+    '''
+    Interogari la BD
 
+    Returneaza un obiect responce
+    '''
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)         # Create a socket object
-host = socket.gethostname() # Get local machine name
-port = 8888               # Reserve a port for your service.
+    def __init__(self):
+        self.s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.host=host = socket.gethostname()
+        self.port = 8888
 
-s.connect((host, port))
+    def get_db_responce(self,input_statement):
+        self.write_json(input_statement,'',dict(),dict())
 
-f = open('client_tosend.json','rb')
+        return Statement(self.get_answer(self.send()))
 
-print ('Sending..1.')
-l = f.read(1024)
-while (l):
-    print ('Sending..2.')
-    s.send(l)
-    l = f.read(1024)
-print ("out")
+    def send(self):
+        self.s.connect((self.host, self.port))
 
-f.close()
-buffer = ''
-l = s.recv(1024)
-buffer+=l.decode('utf-8')
-while (len(l)==1024):
-    print ("Receiving...")
-    l = s.recv(1024)
-    buffer += l.decode('utf-8')
-    print (1)
-print ("out")
-print (buffer)
-print ("Done ")
-s.shutdown(socket.SHUT_WR)
+        f = open('client_tosend.json','rb')
 
-s.close()
+        l = f.read(1024)
+
+        while (l):
+            self.s.send(l)
+            l = f.read(1024)
+
+        f.close()
+        buffer = ''
+        l = self.s.recv(1024)
+
+        buffer+=l.decode('utf-8')
+
+        while (len(l)==1024):
+            l = self.s.recv(1024)
+            buffer += l.decode('utf-8')
+
+        self.s.shutdown(socket.SHUT_WR)
+        self.s.close()
+
+        return buffer
+
+    def get_answer(self,db_answer):
+        return 'a'
+        #return db_answer['answer']
+
+    def write_json(self,question, subjects, dict_prop, dict_answer):
+        nr_subj = len(subjects)
+        f = open('client_tosend.json', 'w')
+        f.write("{\n")
+        f.write('"question" : ')
+        f.write(' "' + question + '"' + ', \n')
+        f.write('"prop": [ ')
+        i = 0
+
+        if(nr_subj!=0):
+            for index in subjects:
+                i = i + 1
+                f.write("\n { \n")
+                f.write('"Subject" : ')
+                f.write('"' + index + '"' + ',')
+                length = len(dict_prop[index])
+                for x in range(0, length):
+                    f.write('\n"' + dict_prop[index][x] + '" : ')
+                    f.write('"' + dict_answer[index][x] + '" ')
+
+                    if x < length - 1:
+                        f.write(",")
+
+                f.write('\n }')
+
+                if i < nr_subj:
+                    f.write(', \n')
+                else:
+                    f.write('] \n')
+
+        if question != "":
+            f.write(']')
+        f.write('\n }')
+        f.close()

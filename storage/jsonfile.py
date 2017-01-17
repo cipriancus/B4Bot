@@ -1,4 +1,3 @@
-import warnings
 from storage.storage_adapter import StorageAdapter
 from conversation.response import Response
 from conversation.statement import Statement

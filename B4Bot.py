@@ -5,17 +5,18 @@ from model import utils
 
 
 class B4Bot(object):
-
     def __init__(self, **kwargs):
         from conversation.session import SessionManager
         from logic.multi_adapter import MultiLogicAdapter
 
         storage_adapter = kwargs.get('storage_adapter', 'storage.jsonfile.JsonFileStorageAdapter')
 
-        logic_adapters = kwargs.get('logic_adapters', ['logic.best_match.BestMatch',
-                                    'logic.mathematical_evaluation.MathematicalEvaluation',
-                                    'logic.time_adapter.TimeLogicAdapter',
-                                    'logic.low_confidence.LowConfidenceAdapter'])
+        logic_adapters = kwargs.get('logic_adapters',
+                                    ['logic.database_match.DatabaseMatch', 'logic.best_match.BestMatch',
+                                     'logic.mathematical_evaluation.MathematicalEvaluation',
+                                     'logic.time_adapter.TimeLogicAdapter',
+                                     'logic.low_confidence.LowConfidenceAdapter'
+                                     ])
 
         input_adapter = kwargs.get('input_adapter', 'input.variable_input_type_adapter.VariableInputTypeAdapter')
 
@@ -23,11 +24,10 @@ class B4Bot(object):
         utils.validate_adapter_class(storage_adapter, StorageAdapter)
         utils.validate_adapter_class(input_adapter, InputAdapter)
 
-        #da raspunsul efectiv, folosind mai multe adaptoare
+        # da raspunsul efectiv, folosind mai multe adaptoare
         self.logic = MultiLogicAdapter(**kwargs)
 
         self.storage = utils.initialize_class(storage_adapter, **kwargs)
-
 
         self.input = utils.initialize_class(input_adapter, **kwargs)
 
@@ -35,10 +35,11 @@ class B4Bot(object):
         self.filters = (utils.import_module(F)() for F in filters)
 
         # Setam un adaptor defaul in MultiLogicAdapter
-        self.logic.system_adapters.append(utils.initialize_class('logic.no_knowledge_adapter.NoKnowledgeAdapter', **kwargs))
+        self.logic.system_adapters.append(
+            utils.initialize_class('logic.no_knowledge_adapter.NoKnowledgeAdapter', **kwargs))
 
-        #adaugam adaptoarele pentru raspunsurile noastre
-        #in MultiLogicAdapter
+        # adaugam adaptoarele pentru raspunsurile noastre
+        # in MultiLogicAdapter
         for adapter in logic_adapters:
             self.logic.add_adapter(adapter, **kwargs)
 
@@ -46,6 +47,16 @@ class B4Bot(object):
         self.storage.set_chatbot(self)
         self.logic.set_chatbot(self)
         self.input.set_chatbot(self)
+
+        try:
+            kwargs.get('trainer', 'trainer.trainers.Trainer')
+            trainer = kwargs.get('trainer', 'trainer.trainers.Trainer')
+
+            TrainerClass = utils.import_module(trainer)
+            self.trainer = TrainerClass(self.storage, **kwargs)
+            self.training_data = kwargs.get('training_data')
+        except ImportError:
+            pass
 
         self.conversation_sessions = SessionManager()
         self.default_session = self.conversation_sessions.new()
@@ -79,7 +90,7 @@ class B4Bot(object):
         ).conversation.get_last_response_statement()
         self.learn_response(statement, previous_statement)
 
-        self.conversation_sessions.update(session_id, (statement, response, ))
+        self.conversation_sessions.update(session_id, (statement, response,))
 
         return response
 
@@ -110,3 +121,9 @@ class B4Bot(object):
 
         self.storage.update(statement)
 
+    def set_trainer(self, training_class, **kwargs):
+        self.trainer = training_class(self.storage, **kwargs)
+
+    @property
+    def train(self):
+        return self.trainer.train

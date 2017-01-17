@@ -10,34 +10,21 @@ alchemyapi = AlchemyAPI()
 
 chatbot = B4Bot()
 
-"""
-    Request:
-        {
-            'statement':'Hello'
-        }
-    Response:
-        {
-            'response':'Hi there',
-            'emotion': 'joy'
-        }
-"""
+
 @app.route('/api/bot', methods=['POST'])
 def get_response():
-    print ('aici',request,  request.json, 'statement' in request.json )
     if not request.json or not 'statement' in request.json:
-        print('aaaaaaaaaaaaaaaaaaaaaaa')
         return
-        #abort(400)
 
     statement = request.json['statement']
     responseToStatement = chatbot.get_response(statement)
+
     joy = np.zeros(2)
     anger = np.zeros(2)
     sadness = np.zeros(2)
     disgust = np.zeros(2)
     fear = np.zeros(2)
 
-    pos_count = 0;
     response = alchemyapi.emotion('text', statement)
     if response['status'] == 'OK':
         emotions = response['docEmotions']

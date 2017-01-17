@@ -1,13 +1,11 @@
 from __future__ import unicode_literals
 from datetime import datetime
 from .logic_adapter import LogicAdapter
-import pytz
-from tzlocal import get_localzone
 
 
 class TimeLogicAdapter(LogicAdapter):
     """
-    Adaptor login pentru timpul curent
+    Adaptor logic pentru timpul curent
     """
 
     def __init__(self, **kwargs):
@@ -15,17 +13,20 @@ class TimeLogicAdapter(LogicAdapter):
         from nltk import NaiveBayesClassifier
 
         self.positive = [
-            'what time is it',
+            'time is it',
             'do you know the time',
             'do you know what time it is',
-            'what is the time'
+            'is the time'
         ]
 
         self.negative = [
             'it is time to go to sleep',
             'what is your favorite color',
             'i had a great time',
-            'what is'
+            'what is',
+            'how are you',
+            'hello',
+            'do you have a question'
         ]
 
         labeled_data = (
@@ -57,7 +58,7 @@ class TimeLogicAdapter(LogicAdapter):
         now = datetime.now()
 
         time_features = self.time_question_features(statement.text.lower())
-        confidence = self.classifier.classify(time_features)
+        confidence = abs(self.classifier.classify(time_features)-0.5)
         response = Statement('The current time is ' + now.strftime('%I:%M %p'))
 
         return confidence, response
