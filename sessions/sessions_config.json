@@ -1,0 +1,10 @@
+{
+  "elasticsearch_hosts": [
+    "localhost:9200"
+  ],
+  "active_sessions": "session",
+  "past_sessions": "archive",
+  "past_ES_type": "session_summary",
+  "search_threshold": 1,
+  "logging_path": "D:\\IA\\Sesiuni\\logs\\"
+}
