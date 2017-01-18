@@ -1,6 +1,6 @@
 # Modul1
 
-SITE: http://b4bot.site/ se poate folosi aici
+SITE: http://b4bot.site/chat se poate folosi aici
 
 Vom detalia modulele :
 
