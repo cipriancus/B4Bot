@@ -1,5 +1,7 @@
 # Modul1
 
+SITE: http://b4bot.site/ se poate folosi aici
+
 Vom detalia modulele :
 
 Atentie: inainte de a compila botul vor aparea probleme de dependinte pe care le veti rezolva cu pip, vor exista si probleme de dependinta pentru nltk, pentru tagger si words si inca cateva, acestea se pot dezolva prin inserarea in cod a nltk.download() ce deschide o fereastra unde sa se selecteze dependintele, nu e greu de cautat si instalat.
